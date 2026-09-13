@@ -204,6 +204,13 @@
   .hero-figure{
     position:relative;
   }
+  .wing-svg{
+    width:100%;
+    height:auto;
+    aspect-ratio:1/1;
+    display:block;
+    overflow:visible;
+  }
   .wing-svg path.draw{
     stroke-dasharray:1400;
     stroke-dashoffset:1400;
@@ -256,30 +263,9 @@
 
   /* ---------- About ---------- */
   .about{ background:var(--paper); }
-  .about-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:64px;
-    align-items:start;
-  }
-  .about p{ font-size:16.5px; margin-bottom:18px; max-width:56ch;}
+  .about-single{ max-width:70ch; }
+  .about p{ font-size:16.5px; margin-bottom:18px; }
   .about strong{ color:var(--red); }
-
-  .spec-sheet{
-    border:1px solid rgba(10,25,41,0.18);
-    background:var(--white);
-  }
-  .spec-row{
-    display:flex;
-    justify-content:space-between;
-    padding:16px 22px;
-    border-bottom:1px solid rgba(10,25,41,0.12);
-    font-family:var(--mono);
-    font-size:13px;
-  }
-  .spec-row:last-child{ border-bottom:none; }
-  .spec-row .k{ color:var(--steel); letter-spacing:0.05em; text-transform:uppercase; font-size:11px;}
-  .spec-row .v{ font-weight:600; text-align:right; }
 
   /* ---------- Projects ---------- */
   .projects{ background:var(--navy-deep); color:var(--white); overflow:hidden; }
@@ -543,15 +529,50 @@
     color:var(--steel);
     font-family:var(--mono);
     font-size:12px;
-    padding:26px 0;
+    padding:30px 0;
   }
-  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .footer-inner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:24px;
+  }
+  .footer-copy{ flex-shrink:0; }
+  .footer-sponsors{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .footer-sponsors-label{
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    font-size:10.5px;
+    color:var(--steel);
+    flex-shrink:0;
+  }
+  .footer-sponsors-logos{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .footer-sponsors-logos img{
+    height:30px;
+    width:auto;
+    max-width:70px;
+    object-fit:contain;
+    filter:grayscale(1) brightness(1.6);
+    opacity:0.85;
+    transition:filter .25s ease, opacity .25s ease;
+  }
+  .footer-sponsors-logos img:hover{ filter:none; opacity:1; }
 
   /* ---------- Responsive ---------- */
   @media (max-width:860px){
     .hero .wrap{ grid-template-columns:1fr; }
     .hero-figure{ order:-1; max-width:340px; margin:0 auto 20px; }
-    .about-grid{ grid-template-columns:1fr; }
     .project-grid{ grid-template-columns:1fr; }
     .news-grid{ grid-template-columns:1fr; }
     .roadmap-line{ display:none; }
@@ -583,6 +604,10 @@
   }
   @media (max-width:560px){
     .section-pad{ padding:80px 0; }
+    .footer-inner{ flex-direction:column; align-items:flex-start; gap:18px; }
+    .footer-sponsors{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .footer-sponsors-logos{ gap:18px; }
+    .footer-sponsors-logos img{ height:26px; max-width:60px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -654,20 +679,10 @@
     <h2 class="section-title reveal">Bir mirası mühendisliğe dönüştürmek</h2>
     <div class="rule"></div>
 
-    <div class="about-grid">
-      <div class="reveal">
-        <p>Adımızı, Evliya Çelebi'nin aktardığına göre <strong>1632 yılında yapay kanatlarla Galata Kulesi'nden uçarak Boğaz'ı geçtiği rivayet edilen</strong> Hezarfen Ahmet Çelebi'den alıyoruz. O günden bugüne değişen tek şey araçlar; cesaret ve merak aynı kalıyor.</p>
-        <p>Hezarfen Tekno Team olarak, TEKNOFEST bünyesinde <strong>Çelikkubbe Hava Savunma Sistemleri</strong>, <strong>Robolig (Üniversite Seviyesi)</strong> ve <strong>Maden Teknolojileri Yarışması</strong> kategorilerinde yerli ve milli projeler geliştiriyoruz. Amacımız yalnızca yarışmak değil; ülkemizin teknolojik bağımsızlığına genç mühendisler yetiştirerek katkı sağlamak.</p>
-        <p>Disiplinler arası bir ekip olarak yazılım, elektronik-donanım ve mekanik alanlarında bir araya geliyor, her projeyi baştan sona kendi ellerimizle tasarlayıp üretiyoruz.</p>
-      </div>
-
-      <div class="spec-sheet reveal">
-        <div class="spec-row"><span class="k">Takım Adı</span><span class="v">Hezarfen Tekno Team</span></div>
-        <div class="spec-row"><span class="k">Faaliyet Alanı</span><span class="v">Savunma Sanayii</span></div>
-        <div class="spec-row"><span class="k">Katılım</span><span class="v">TEKNOFEST</span></div>
-        <div class="spec-row"><span class="k">Odak</span><span class="v">Çelikkubbe · Robolig · Maden Teknolojileri</span></div>
-        <div class="spec-row"><span class="k">İlham Kaynağı</span><span class="v">Hezarfen Ahmet Çelebi, 1632</span></div>
-      </div>
+    <div class="about-single reveal">
+      <p>Adımızı, Evliya Çelebi'nin aktardığına göre <strong>1632 yılında yapay kanatlarla Galata Kulesi'nden uçarak Boğaz'ı geçtiği rivayet edilen</strong> Hezarfen Ahmet Çelebi'den alıyoruz. O günden bugüne değişen tek şey araçlar; cesaret ve merak aynı kalıyor.</p>
+      <p>Hezarfen Tekno Team olarak, TEKNOFEST bünyesinde <strong>Çelikkubbe Hava Savunma Sistemleri</strong>, <strong>Robolig (Üniversite Seviyesi)</strong> ve <strong>Maden Teknolojileri Yarışması</strong> kategorilerinde yerli ve milli projeler geliştiriyoruz. Amacımız yalnızca yarışmak değil; ülkemizin teknolojik bağımsızlığına genç mühendisler yetiştirerek katkı sağlamak.</p>
+      <p>Disiplinler arası bir ekip olarak yazılım, elektronik-donanım ve mekanik alanlarında bir araya geliyor, her projeyi baştan sona kendi ellerimizle tasarlayıp üretiyoruz.</p>
     </div>
   </div>
 </section>
@@ -836,22 +851,35 @@
 </section>
 
 <footer>
-  <div class="wrap">
-    <span>© 2026 HEZARFEN TEKNO TEAM</span>
-    <span>TEKNOFEST · SAVUNMA SANAYİİ</span>
+  <div class="wrap footer-inner">
+    <span class="footer-copy">© 2026 HEZARFEN TEKNO TEAM</span>
+    <div class="footer-sponsors">
+      <span class="footer-sponsors-label">Sponsorlar</span>
+      <div class="footer-sponsors-logos">
+        <img src="assets/sponsors/teknofest.jpg" alt="TEKNOFEST">
+        <img src="assets/sponsors/milli-teknoloji-hamlesi.jpg" alt="Milli Teknoloji Hamlesi">
+        <img src="assets/sponsors/cukurova-universitesi.png" alt="Çukurova Üniversitesi">
+        <img src="assets/sponsors/atu.jpg" alt="Adana Alparslan Türkeş Bilim ve Teknoloji Üniversitesi">
+      </div>
+    </div>
   </div>
 </footer>
 
 <script>
   // Hero crescent/star draw-in (JS-triggered for reliable mobile playback)
-  window.addEventListener('load', () => {
+  function triggerHeroDraw() {
+    const svg = document.querySelector('.wing-svg');
+    const figure = document.querySelector('.hero-figure');
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      const svg = document.querySelector('.wing-svg');
-      const figure = document.querySelector('.hero-figure');
       if (svg) svg.classList.add('draw-active');
       if (figure) figure.classList.add('draw-active');
     }));
-  });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', triggerHeroDraw);
+  } else {
+    triggerHeroDraw();
+  }
 
   // Mobile nav toggle
   const toggle = document.getElementById('navToggle');
