@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ekip Paneli — Hezarfen Tekno Team</title>
+<meta name="theme-color" content="#0a1929">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0a1929; --navy-mid:#122c46; --navy-line: rgba(90,200,224,0.16);
+    --cyan:#5ac8e0; --paper-dim:#d9d2c0; --steel:#8d99a6; --red:#c81e2c; --green:#4caf7d; --white:#f7f5ef;
+    --display:'Big Shoulders Display',sans-serif; --body:'Source Serif 4',Georgia,serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--navy-deep); color:var(--white); font-family:var(--body); min-height:100vh; }
+  a{ color:inherit; }
+  .wrap{ max-width:720px; margin:0 auto; padding:32px 20px 100px; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:0.15em; color:var(--cyan); text-transform:uppercase; }
+  h1{ font-family:var(--display); font-weight:800; font-size:28px; margin-top:6px; }
+  label{ font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--steel); display:block; margin-bottom:5px; }
+  input, textarea, select{
+    width:100%; background:var(--navy-mid); border:1px solid var(--navy-line);
+    color:var(--white); font-family:var(--body); font-size:15px; padding:11px 12px;
+  }
+  textarea{ resize:vertical; }
+  .btn{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:12px 22px; border:1px solid var(--cyan); background:var(--red); border-color:var(--red);
+    color:var(--white); cursor:pointer; width:100%;
+  }
+  .btn:hover{ background:#e13343; }
+  .btn.secondary{ background:transparent; border-color:var(--navy-line); width:auto; }
+  .msg{ font-family:var(--mono); font-size:12px; margin-top:8px; min-height:1.2em; }
+  .msg.error{ color:#ff8a8a; } .msg.ok{ color:var(--green); }
+  #panel{ display:none; }
+  .field{ margin-bottom:14px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .profile-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    border:1px solid var(--navy-line); padding:14px 18px; margin:18px 0 24px;
+    font-family:var(--mono); font-size:12px; color:var(--steel);
+  }
+  .profile-strip b{ color:var(--white); font-family:var(--display); font-size:16px; display:block; }
+
+  .tabs{ display:flex; gap:1px; background:var(--navy-line); border:1px solid var(--navy-line); margin-bottom:24px; overflow-x:auto; }
+  .tab-btn{
+    flex:1; min-width:90px; padding:11px 6px; text-align:center; white-space:nowrap;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.04em; text-transform:uppercase;
+    background:var(--navy-deep); color:var(--steel); cursor:pointer; border:none;
+  }
+  .tab-btn.active{ background:var(--navy-mid); color:var(--cyan); }
+  .tabpanel{ display:none; } .tabpanel.active{ display:block; }
+
+  .card{ border:1px solid var(--navy-line); padding:18px; margin-bottom:12px; }
+  .card h4{ font-family:var(--display); font-size:18px; margin-bottom:5px; }
+  .card .meta{ font-family:var(--mono); font-size:10.5px; color:var(--steel); }
+  .card p{ font-size:14px; color:var(--paper-dim); margin-top:8px; }
+  .card a.file-link{ font-family:var(--mono); font-size:12px; color:var(--cyan); display:inline-block; margin-top:8px; }
+  .empty{ font-family:var(--mono); font-size:12.5px; color:var(--steel); }
+  @media (max-width:480px){ .grid2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">HEZARFEN TEKNO TEAM</div>
+  <h1>Ekip Paneli</h1>
+
+  <div id="loginBox">
+    <form id="loginForm" style="margin-top:24px;">
+      <div class="field"><label>E-posta</label><input type="email" id="email" required></div>
+      <div class="field"><label>Şifre</label><input type="password" id="password" required></div>
+      <button type="submit" class="btn">Giriş Yap</button>
+      <p class="msg" id="loginMsg"></p>
+    </form>
+  </div>
+
+  <div id="panel">
+    <div class="profile-strip">
+      <div><b id="pName">—</b><span id="pMeta">—</span></div>
+      <span class="btn secondary" id="logoutBtn" style="cursor:pointer;">Çıkış</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="notify">Bildirimler</button>
+      <button class="tab-btn" data-tab="log">Çalışma Kaydı</button>
+      <button class="tab-btn" data-tab="files">Dosyalar</button>
+      <button class="tab-btn" data-tab="meetings">Toplantılar</button>
+    </div>
+
+    <div class="tabpanel active" id="tab-notify"><div id="notifyList"></div></div>
+
+    <div class="tabpanel" id="tab-log">
+      <form id="logForm">
+        <div class="grid2">
+          <div class="field"><label>Tarih</label><input type="date" id="l-date" required></div>
+          <div class="field"><label>Süre (saat)</label><input type="number" id="l-hours" min="0.5" step="0.5" required></div>
+        </div>
+        <div class="field"><label>Çalışma Şekli</label>
+          <select id="l-mode"><option value="atolye">Atölyeden</option><option value="uzaktan">Uzaktan</option></select>
+        </div>
+        <div class="field"><label>Ne Yaptın?</label><textarea id="l-desc" rows="4" required></textarea></div>
+        <div class="field"><label>Görsel / Dosya (opsiyonel)</label><input type="file" id="l-file"></div>
+        <button type="submit" class="btn">Kaydı Gönder</button>
+        <p class="msg" id="logMsg"></p>
+      </form>
+      <h3 style="font-family:var(--display); margin:28px 0 14px;">Geçmiş Kayıtlarım</h3>
+      <div id="myLogsList"></div>
+    </div>
+
+    <div class="tabpanel" id="tab-files"><div id="filesList"></div></div>
+    <div class="tabpanel" id="tab-meetings"><div id="meetingsList"></div></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCefL0FpIDpKPh4RZfqbuGfGlecEafjFMI",
+    authDomain: "hezarfen-kariyer.firebaseapp.com",
+    projectId: "hezarfen-kariyer",
+    storageBucket: "hezarfen-kariyer.firebasestorage.app",
+    messagingSenderId: "604464908716",
+    appId: "1:604464908716:web:7796b35cb3ccb47c7f1209"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0ISZJaVxq15mX3IrwIai-2syHDZGzC9NFmWkt085E9pNyniGsjI5X7NFU7ylPqXp0TQ/exec";
+  const PROJECT_LABELS = { sahi: 'ŞAHİ Hava Savunma Sistemi', ilgariz: 'Ilgar-İz', gozcum: 'Gözcü-M', genel: 'Genel / Yönetim' };
+
+  let myProfile = null;
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+  function fileToBase64(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+  }
+  async function uploadPanelFile(file) {
+    const base64 = await fileToBase64(file);
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type: 'panelfile', filename: file.name, mime: file.type, fileBase64: base64 })
+    });
+    return (await res.json()).url;
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('loginMsg');
+    msg.className = 'msg'; msg.textContent = 'Giriş yapılıyor...';
+    try {
+      await auth.signInWithEmailAndPassword(document.getElementById('email').value.trim(), document.getElementById('password').value);
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  async function loadNotifications() {
+    const listEl = document.getElementById('notifyList');
+    const snap = await db.collection('notifications').orderBy('createdAt', 'desc').limit(30).get();
+    const relevant = [];
+    snap.forEach(doc => {
+      const n = doc.data();
+      if (n.scopeType === 'all') relevant.push(n);
+      else if (n.scopeType === 'project' && n.projectId === myProfile.projectId) relevant.push(n);
+      else if (n.scopeType === 'unit' && n.projectId === myProfile.projectId && n.unit === myProfile.unit) relevant.push(n);
+    });
+    if (!relevant.length) { listEl.innerHTML = '<p class="empty">Henüz bildirim yok.</p>'; return; }
+    listEl.innerHTML = '';
+    relevant.forEach(n => {
+      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('tr-TR') : '';
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(n.title)}</h4><div class="meta">${date}</div><p>${escapeHtml(n.body)}</p>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  document.getElementById('logForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('logMsg');
+    msg.className = 'msg'; msg.textContent = 'Gönderiliyor...';
+    try {
+      const file = document.getElementById('l-file').files[0];
+      let fileUrl = '';
+      if (file) fileUrl = await uploadPanelFile(file);
+      await db.collection('workLogs').add({
+        uid: auth.currentUser.uid, name: myProfile.name, projectId: myProfile.projectId, unit: myProfile.unit,
+        date: document.getElementById('l-date').value, hours: parseFloat(document.getElementById('l-hours').value),
+        mode: document.getElementById('l-mode').value, description: document.getElementById('l-desc').value.trim(),
+        fileUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      msg.className = 'msg ok'; msg.textContent = 'Kayıt gönderildi!';
+      document.getElementById('logForm').reset();
+      loadMyLogs();
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  async function loadMyLogs() {
+    const listEl = document.getElementById('myLogsList');
+    const snap = await db.collection('workLogs').where('uid', '==', auth.currentUser.uid).orderBy('date', 'desc').get();
+    if (snap.empty) { listEl.innerHTML = '<p class="empty">Henüz kaydınız yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${l.date} — ${l.hours} saat</h4>
+        <div class="meta">${l.mode === 'atolye' ? 'Atölyeden' : 'Uzaktan'}</div>
+        <p>${escapeHtml(l.description)}</p>
+        ${l.fileUrl ? `<a class="file-link" href="${l.fileUrl}" target="_blank" rel="noopener">Eklediğim dosya →</a>` : ''}`;
+      listEl.appendChild(card);
+    });
+  }
+
+  async function loadFiles() {
+    const listEl = document.getElementById('filesList');
+    const snap = await db.collection('projectFiles').where('projectId', '==', myProfile.projectId).orderBy('createdAt', 'desc').get();
+    const relevant = [];
+    snap.forEach(doc => {
+      const f = doc.data();
+      if (!f.unit || f.unit === myProfile.unit) relevant.push(f);
+    });
+    if (!relevant.length) { listEl.innerHTML = '<p class="empty">Projenize ait dosya yok.</p>'; return; }
+    listEl.innerHTML = '';
+    relevant.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(f.title)}</h4><div class="meta">${f.unit ? escapeHtml(f.unit) : 'Tüm proje ekibi'}</div>
+        <a class="file-link" href="${f.fileUrl}" target="_blank" rel="noopener">${escapeHtml(f.fileName)} →</a>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  async function loadMeetings() {
+    const listEl = document.getElementById('meetingsList');
+    const snap = await db.collection('meetings').orderBy('datetime', 'desc').get();
+    const relevant = [];
+    snap.forEach(doc => {
+      const m = doc.data();
+      if (!m.projectId || m.projectId === myProfile.projectId) relevant.push(m);
+    });
+    if (!relevant.length) { listEl.innerHTML = '<p class="empty">Planlanmış toplantı yok.</p>'; return; }
+    listEl.innerHTML = '';
+    relevant.forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(m.title)}</h4>
+        <div class="meta">${new Date(m.datetime).toLocaleString('tr-TR')}</div>
+        <a class="file-link" href="https://meet.jit.si/${m.jitsiRoom}" target="_blank" rel="noopener">Toplantı odasına katıl →</a>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      const doc = await db.collection('teamMembers').doc(user.uid).get();
+      if (!doc.exists) {
+        alert('Hesabınız sistemde tanımlı değil, yöneticinizle iletişime geçin.');
+        auth.signOut();
+        return;
+      }
+      myProfile = doc.data();
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+      document.getElementById('pName').textContent = myProfile.name;
+      document.getElementById('pMeta').textContent = (PROJECT_LABELS[myProfile.projectId] || myProfile.projectId) + (myProfile.unit ? ' · ' + myProfile.unit : '');
+      document.getElementById('l-date').value = new Date().toISOString().slice(0, 10);
+      loadNotifications(); loadMyLogs(); loadFiles(); loadMeetings();
+    } else {
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('panel').style.display = 'none';
+    }
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

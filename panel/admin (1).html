@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ekip Yönetim Paneli — Hezarfen Tekno Team</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0a1929; --navy-mid:#122c46; --navy-line: rgba(90,200,224,0.16);
+    --cyan:#5ac8e0; --paper-dim:#d9d2c0; --steel:#8d99a6; --red:#c81e2c; --green:#4caf7d; --white:#f7f5ef;
+    --display:'Big Shoulders Display',sans-serif; --body:'Source Serif 4',Georgia,serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--navy-deep); color:var(--white); font-family:var(--body); min-height:100vh; }
+  a{ color:inherit; }
+  .wrap{ max-width:960px; margin:0 auto; padding:40px 24px 100px; }
+  .eyebrow{ font-family:var(--mono); font-size:12px; letter-spacing:0.15em; color:var(--cyan); text-transform:uppercase; }
+  h1{ font-family:var(--display); font-weight:800; font-size:32px; margin-top:8px; }
+  label{ font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--steel); display:block; margin-bottom:5px; }
+  input, textarea, select{
+    width:100%; background:var(--navy-mid); border:1px solid var(--navy-line);
+    color:var(--white); font-family:var(--body); font-size:14.5px; padding:10px 12px;
+  }
+  textarea{ resize:vertical; }
+  .btn{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:11px 20px; border:1px solid var(--cyan); background:var(--red); border-color:var(--red);
+    color:var(--white); cursor:pointer;
+  }
+  .btn:hover{ background:#e13343; }
+  .btn.secondary{ background:transparent; border-color:var(--navy-line); }
+  .btn.secondary:hover{ background:var(--navy-mid); }
+  .msg{ font-family:var(--mono); font-size:12px; margin-top:8px; min-height:1.2em; }
+  .msg.error{ color:#ff8a8a; } .msg.ok{ color:var(--green); }
+  #panel{ display:none; }
+
+  .tabs{ display:flex; gap:1px; background:var(--navy-line); border:1px solid var(--navy-line); margin:26px 0 30px; flex-wrap:wrap; }
+  .tab-btn{
+    flex:1; min-width:120px; padding:12px; text-align:center;
+    font-family:var(--mono); font-size:11.5px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--navy-deep); color:var(--steel); cursor:pointer; border:none;
+  }
+  .tab-btn.active{ background:var(--navy-mid); color:var(--cyan); }
+  .tabpanel{ display:none; }
+  .tabpanel.active{ display:block; }
+
+  .card{ border:1px solid var(--navy-line); padding:20px; margin-bottom:14px; }
+  .card h4{ font-family:var(--display); font-size:19px; margin-bottom:6px; }
+  .card .meta{ font-family:var(--mono); font-size:11px; color:var(--steel); }
+  .card p{ font-size:14px; color:var(--paper-dim); margin-top:8px; }
+  .card a.file-link{ font-family:var(--mono); font-size:12px; color:var(--cyan); display:inline-block; margin-top:8px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field{ margin-bottom:14px; }
+  .row-actions{ display:flex; gap:10px; margin-top:10px; }
+  .del-btn{ font-family:var(--mono); font-size:11px; color:#ff8a8a; background:none; border:1px solid #ff8a8a; padding:5px 10px; cursor:pointer; }
+  @media (max-width:640px){ .grid2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">HEZARFEN TEKNO TEAM</div>
+  <h1>Ekip Yönetim Paneli</h1>
+
+  <div id="loginBox">
+    <form id="loginForm" style="margin-top:24px; max-width:360px;">
+      <div class="field"><label>E-posta</label><input type="email" id="email" required></div>
+      <div class="field"><label>Şifre</label><input type="password" id="password" required></div>
+      <button type="submit" class="btn">Giriş Yap</button>
+      <p class="msg" id="loginMsg"></p>
+    </form>
+  </div>
+
+  <div id="panel">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="members">Üyeler</button>
+      <button class="tab-btn" data-tab="notify">Bildirim Gönder</button>
+      <button class="tab-btn" data-tab="logs">Çalışma Kayıtları</button>
+      <button class="tab-btn" data-tab="files">Dosyalar</button>
+      <button class="tab-btn" data-tab="meetings">Toplantılar</button>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="tabpanel active" id="tab-members">
+      <h3 style="font-family:var(--display); margin-bottom:14px;">Yeni Üye Ekle</h3>
+      <form id="memberForm">
+        <div class="grid2">
+          <div class="field"><label>Ad Soyad</label><input type="text" id="m-name" required></div>
+          <div class="field"><label>E-posta</label><input type="email" id="m-email" required></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Geçici Şifre</label><input type="text" id="m-password" required minlength="6"></div>
+          <div class="field"><label>Proje</label>
+            <select id="m-project" required>
+              <option value="">Seçiniz</option>
+              <option value="sahi">ŞAHİ Hava Savunma Sistemi</option>
+              <option value="ilgariz">Ilgar-İz</option>
+              <option value="gozcum">Gözcü-M</option>
+              <option value="genel">Genel / Yönetim</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Birim (Mekanik, Yazılım, Elektronik, Sponsorluk vb.)</label><input type="text" id="m-unit"></div>
+        <button type="submit" class="btn">Üye Ekle</button>
+        <p class="msg" id="memberMsg"></p>
+      </form>
+
+      <h3 style="font-family:var(--display); margin:30px 0 14px;">Kayıtlı Üyeler</h3>
+      <div id="memberList"></div>
+    </div>
+
+    <!-- NOTIFY -->
+    <div class="tabpanel" id="tab-notify">
+      <form id="notifyForm">
+        <div class="field"><label>Başlık</label><input type="text" id="n-title" required></div>
+        <div class="field"><label>Mesaj</label><textarea id="n-body" rows="4" required></textarea></div>
+        <div class="grid2">
+          <div class="field"><label>Kime</label>
+            <select id="n-scope">
+              <option value="all">Tüm Takım</option>
+              <option value="project">Belirli Proje</option>
+              <option value="unit">Belirli Proje + Birim</option>
+            </select>
+          </div>
+          <div class="field"><label>Proje</label>
+            <select id="n-project">
+              <option value="">—</option>
+              <option value="sahi">ŞAHİ Hava Savunma Sistemi</option>
+              <option value="ilgariz">Ilgar-İz</option>
+              <option value="gozcum">Gözcü-M</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Birim (yalnızca "Proje + Birim" seçiliyse)</label><input type="text" id="n-unit"></div>
+        <button type="submit" class="btn">Bildirimi Gönder</button>
+        <p class="msg" id="notifyMsg"></p>
+      </form>
+
+      <h3 style="font-family:var(--display); margin:30px 0 14px;">Gönderilen Bildirimler</h3>
+      <div id="notifyList"></div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="tabpanel" id="tab-logs">
+      <h3 style="font-family:var(--display); margin-bottom:14px;">Tüm Çalışma Kayıtları</h3>
+      <div id="logsList"></div>
+    </div>
+
+    <!-- FILES -->
+    <div class="tabpanel" id="tab-files">
+      <form id="fileForm">
+        <div class="field"><label>Dosya Başlığı</label><input type="text" id="f-title" required></div>
+        <div class="grid2">
+          <div class="field"><label>Proje</label>
+            <select id="f-project" required>
+              <option value="sahi">ŞAHİ Hava Savunma Sistemi</option>
+              <option value="ilgariz">Ilgar-İz</option>
+              <option value="gozcum">Gözcü-M</option>
+            </select>
+          </div>
+          <div class="field"><label>Birim (opsiyonel — boşsa tüm proje ekibi görür)</label><input type="text" id="f-unit"></div>
+        </div>
+        <div class="field"><label>Dosya</label><input type="file" id="f-file" required></div>
+        <button type="submit" class="btn">Dosyayı Yükle</button>
+        <p class="msg" id="fileMsg"></p>
+      </form>
+
+      <h3 style="font-family:var(--display); margin:30px 0 14px;">Yüklenen Dosyalar</h3>
+      <div id="fileList"></div>
+    </div>
+
+    <!-- MEETINGS -->
+    <div class="tabpanel" id="tab-meetings">
+      <form id="meetingForm">
+        <div class="field"><label>Toplantı Konusu</label><input type="text" id="mt-title" required></div>
+        <div class="grid2">
+          <div class="field"><label>Tarih ve Saat</label><input type="datetime-local" id="mt-datetime" required></div>
+          <div class="field"><label>Kime (opsiyonel proje)</label>
+            <select id="mt-project">
+              <option value="">Tüm Takım</option>
+              <option value="sahi">ŞAHİ Hava Savunma Sistemi</option>
+              <option value="ilgariz">Ilgar-İz</option>
+              <option value="gozcum">Gözcü-M</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn">Toplantıyı Planla</button>
+        <p class="msg" id="meetingMsg"></p>
+      </form>
+
+      <h3 style="font-family:var(--display); margin:30px 0 14px;">Planlanan Toplantılar</h3>
+      <div id="meetingList"></div>
+    </div>
+
+    <span class="btn secondary" id="logoutBtn" style="display:inline-block; margin-top:30px; cursor:pointer;">Çıkış Yap</span>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCefL0FpIDpKPh4RZfqbuGfGlecEafjFMI",
+    authDomain: "hezarfen-kariyer.firebaseapp.com",
+    projectId: "hezarfen-kariyer",
+    storageBucket: "hezarfen-kariyer.firebasestorage.app",
+    messagingSenderId: "604464908716",
+    appId: "1:604464908716:web:7796b35cb3ccb47c7f1209"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0ISZJaVxq15mX3IrwIai-2syHDZGzC9NFmWkt085E9pNyniGsjI5X7NFU7ylPqXp0TQ/exec";
+
+  const PROJECT_LABELS = { sahi: 'ŞAHİ Hava Savunma Sistemi', ilgariz: 'Ilgar-İz', gozcum: 'Gözcü-M', genel: 'Genel / Yönetim' };
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+  function fileToBase64(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+  }
+  async function uploadPanelFile(file) {
+    const base64 = await fileToBase64(file);
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type: 'panelfile', filename: file.name, mime: file.type, fileBase64: base64 })
+    });
+    return (await res.json()).url;
+  }
+
+  // ---- Auth ----
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('loginMsg');
+    msg.className = 'msg'; msg.textContent = 'Giriş yapılıyor...';
+    try {
+      await auth.signInWithEmailAndPassword(document.getElementById('email').value.trim(), document.getElementById('password').value);
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+  // ---- Tabs ----
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---- Members ----
+  document.getElementById('memberForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('memberMsg');
+    msg.className = 'msg'; msg.textContent = 'Ekleniyor...';
+    const name = document.getElementById('m-name').value.trim();
+    const email = document.getElementById('m-email').value.trim();
+    const password = document.getElementById('m-password').value;
+    const projectId = document.getElementById('m-project').value;
+    const unit = document.getElementById('m-unit').value.trim();
+    try {
+      // Secondary app instance so creating the user doesn't sign the admin out
+      const secondary = firebase.initializeApp(firebaseConfig, 'Secondary' + Date.now());
+      const cred = await secondary.auth().createUserWithEmailAndPassword(email, password);
+      const uid = cred.user.uid;
+      await secondary.auth().signOut();
+      await secondary.delete();
+
+      await db.collection('teamMembers').doc(uid).set({
+        name, email, projectId, unit, role: 'member', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      msg.className = 'msg ok'; msg.textContent = 'Üye eklendi!';
+      document.getElementById('memberForm').reset();
+      loadMembers();
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+
+  async function loadMembers() {
+    const listEl = document.getElementById('memberList');
+    const snap = await db.collection('teamMembers').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { listEl.innerHTML = '<p class="msg">Henüz üye yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const m = doc.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(m.name)}</h4>
+        <div class="meta">${escapeHtml(m.email)} · ${escapeHtml(PROJECT_LABELS[m.projectId] || m.projectId)}${m.unit ? ' · ' + escapeHtml(m.unit) : ''}</div>
+        <div class="row-actions"><button class="del-btn" data-id="${doc.id}">Üyeyi Sil</button></div>`;
+      card.querySelector('.del-btn').addEventListener('click', async () => {
+        if (confirm('Bu üyeyi sistemden kaldırmak istediğinize emin misiniz? (Not: giriş hesabı ayrıca Firebase Console\\'dan silinmelidir)')) {
+          await db.collection('teamMembers').doc(doc.id).delete();
+          loadMembers();
+        }
+      });
+      listEl.appendChild(card);
+    });
+  }
+
+  // ---- Notifications ----
+  document.getElementById('n-scope').addEventListener('change', (e) => {
+    document.getElementById('n-project').closest('.field').style.display = e.target.value === 'all' ? 'none' : 'block';
+    document.getElementById('n-unit').closest('.field').style.display = e.target.value === 'unit' ? 'block' : 'none';
+  });
+  document.getElementById('notifyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('notifyMsg');
+    msg.className = 'msg'; msg.textContent = 'Gönderiliyor...';
+    try {
+      await db.collection('notifications').add({
+        title: document.getElementById('n-title').value.trim(),
+        body: document.getElementById('n-body').value.trim(),
+        scopeType: document.getElementById('n-scope').value,
+        projectId: document.getElementById('n-project').value || null,
+        unit: document.getElementById('n-unit').value.trim() || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      msg.className = 'msg ok'; msg.textContent = 'Bildirim gönderildi!';
+      document.getElementById('notifyForm').reset();
+      loadNotifications();
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  async function loadNotifications() {
+    const listEl = document.getElementById('notifyList');
+    const snap = await db.collection('notifications').orderBy('createdAt', 'desc').limit(20).get();
+    if (snap.empty) { listEl.innerHTML = '<p class="msg">Henüz bildirim yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const n = doc.data();
+      const scopeLabel = n.scopeType === 'all' ? 'Tüm Takım' : (PROJECT_LABELS[n.projectId] || n.projectId) + (n.unit ? ' · ' + n.unit : '');
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(n.title)}</h4><div class="meta">${escapeHtml(scopeLabel)}</div><p>${escapeHtml(n.body)}</p>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  // ---- Work Logs (read-only for admin) ----
+  async function loadLogs() {
+    const listEl = document.getElementById('logsList');
+    const snap = await db.collection('workLogs').orderBy('date', 'desc').limit(50).get();
+    if (snap.empty) { listEl.innerHTML = '<p class="msg">Henüz çalışma kaydı yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(l.name)} — ${l.hours} saat</h4>
+        <div class="meta">${l.date} · ${escapeHtml(PROJECT_LABELS[l.projectId] || l.projectId)}${l.unit ? ' · ' + escapeHtml(l.unit) : ''} · ${l.mode === 'atolye' ? 'Atölye' : 'Uzaktan'}</div>
+        <p>${escapeHtml(l.description)}</p>
+        ${l.fileUrl ? `<a class="file-link" href="${l.fileUrl}" target="_blank" rel="noopener">Ek dosyayı görüntüle →</a>` : ''}`;
+      listEl.appendChild(card);
+    });
+  }
+
+  // ---- Files ----
+  document.getElementById('fileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('fileMsg');
+    msg.className = 'msg'; msg.textContent = 'Yükleniyor...';
+    try {
+      const file = document.getElementById('f-file').files[0];
+      const url = await uploadPanelFile(file);
+      await db.collection('projectFiles').add({
+        title: document.getElementById('f-title').value.trim(),
+        projectId: document.getElementById('f-project').value,
+        unit: document.getElementById('f-unit').value.trim() || null,
+        fileUrl: url,
+        fileName: file.name,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      msg.className = 'msg ok'; msg.textContent = 'Dosya yüklendi!';
+      document.getElementById('fileForm').reset();
+      loadFiles();
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  async function loadFiles() {
+    const listEl = document.getElementById('fileList');
+    const snap = await db.collection('projectFiles').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { listEl.innerHTML = '<p class="msg">Henüz dosya yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const f = doc.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(f.title)}</h4>
+        <div class="meta">${escapeHtml(PROJECT_LABELS[f.projectId] || f.projectId)}${f.unit ? ' · ' + escapeHtml(f.unit) : ' · Tüm proje ekibi'}</div>
+        <a class="file-link" href="${f.fileUrl}" target="_blank" rel="noopener">${escapeHtml(f.fileName)} →</a>
+        <div class="row-actions"><button class="del-btn" data-id="${doc.id}">Sil</button></div>`;
+      card.querySelector('.del-btn').addEventListener('click', async () => {
+        if (confirm('Bu dosya kaydı silinsin mi?')) { await db.collection('projectFiles').doc(doc.id).delete(); loadFiles(); }
+      });
+      listEl.appendChild(card);
+    });
+  }
+
+  // ---- Meetings ----
+  document.getElementById('meetingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('meetingMsg');
+    msg.className = 'msg'; msg.textContent = 'Planlanıyor...';
+    try {
+      const roomName = 'HezarfenTeknoTeam-' + Math.random().toString(36).slice(2, 10);
+      await db.collection('meetings').add({
+        title: document.getElementById('mt-title').value.trim(),
+        datetime: document.getElementById('mt-datetime').value,
+        projectId: document.getElementById('mt-project').value || null,
+        jitsiRoom: roomName,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      msg.className = 'msg ok'; msg.textContent = 'Toplantı planlandı!';
+      document.getElementById('meetingForm').reset();
+      loadMeetings();
+    } catch (err) { msg.className = 'msg error'; msg.textContent = 'Hata: ' + err.message; }
+  });
+  async function loadMeetings() {
+    const listEl = document.getElementById('meetingList');
+    const snap = await db.collection('meetings').orderBy('datetime', 'desc').get();
+    if (snap.empty) { listEl.innerHTML = '<p class="msg">Henüz toplantı yok.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const m = doc.data();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<h4>${escapeHtml(m.title)}</h4>
+        <div class="meta">${new Date(m.datetime).toLocaleString('tr-TR')} · ${m.projectId ? escapeHtml(PROJECT_LABELS[m.projectId]) : 'Tüm Takım'}</div>
+        <a class="file-link" href="https://meet.jit.si/${m.jitsiRoom}" target="_blank" rel="noopener">Toplantı odasına git →</a>
+        <div class="row-actions"><button class="del-btn" data-id="${doc.id}">İptal Et</button></div>`;
+      card.querySelector('.del-btn').addEventListener('click', async () => {
+        if (confirm('Bu toplantı iptal edilsin mi?')) { await db.collection('meetings').doc(doc.id).delete(); loadMeetings(); }
+      });
+      listEl.appendChild(card);
+    });
+  }
+
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+      loadMembers(); loadNotifications(); loadLogs(); loadFiles(); loadMeetings();
+    } else {
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('panel').style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>
