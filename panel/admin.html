@@ -174,8 +174,12 @@
 
     <!-- MEETINGS -->
     <div class="tabpanel" id="tab-meetings">
+      <p style="font-family:var(--mono); font-size:11.5px; color:var(--steel); margin-bottom:16px;">
+        Önce <a href="https://meet.google.com/new" target="_blank" rel="noopener" style="color:var(--cyan);">meet.google.com/new</a> adresinden bir toplantı linki oluşturup aşağıya yapıştırın.
+      </p>
       <form id="meetingForm">
         <div class="field"><label>Toplantı Konusu</label><input type="text" id="mt-title" required></div>
+        <div class="field"><label>Google Meet Linki</label><input type="url" id="mt-link" placeholder="https://meet.google.com/xxx-xxxx-xxx" required></div>
         <div class="grid2">
           <div class="field"><label>Tarih ve Saat</label><input type="datetime-local" id="mt-datetime" required></div>
           <div class="field"><label>Kime (opsiyonel proje)</label>
@@ -340,7 +344,11 @@
       const scopeLabel = n.scopeType === 'all' ? 'Tüm Takım' : (PROJECT_LABELS[n.projectId] || n.projectId) + (n.unit ? ' · ' + n.unit : '');
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<h4>${escapeHtml(n.title)}</h4><div class="meta">${escapeHtml(scopeLabel)}</div><p>${escapeHtml(n.body)}</p>`;
+      card.innerHTML = `<h4>${escapeHtml(n.title)}</h4><div class="meta">${escapeHtml(scopeLabel)}</div><p>${escapeHtml(n.body)}</p>
+        <div class="row-actions"><button class="del-btn" data-id="${doc.id}">Bildirimi Sil</button></div>`;
+      card.querySelector('.del-btn').addEventListener('click', async () => {
+        if (confirm('Bu bildirim silinsin mi?')) { await db.collection('notifications').doc(doc.id).delete(); loadNotifications(); }
+      });
       listEl.appendChild(card);
     });
   }
@@ -410,12 +418,11 @@
     const msg = document.getElementById('meetingMsg');
     msg.className = 'msg'; msg.textContent = 'Planlanıyor...';
     try {
-      const roomName = 'HezarfenTeknoTeam-' + Math.random().toString(36).slice(2, 10);
       await db.collection('meetings').add({
         title: document.getElementById('mt-title').value.trim(),
         datetime: document.getElementById('mt-datetime').value,
         projectId: document.getElementById('mt-project').value || null,
-        jitsiRoom: roomName,
+        meetLink: document.getElementById('mt-link').value.trim(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       msg.className = 'msg ok'; msg.textContent = 'Toplantı planlandı!';
@@ -434,7 +441,7 @@
       card.className = 'card';
       card.innerHTML = `<h4>${escapeHtml(m.title)}</h4>
         <div class="meta">${new Date(m.datetime).toLocaleString('tr-TR')} · ${m.projectId ? escapeHtml(PROJECT_LABELS[m.projectId]) : 'Tüm Takım'}</div>
-        <a class="file-link" href="https://meet.jit.si/${m.jitsiRoom}" target="_blank" rel="noopener">Toplantı odasına git →</a>
+        <a class="file-link" href="${escapeHtml(m.meetLink)}" target="_blank" rel="noopener">Google Meet'e katıl →</a>
         <div class="row-actions"><button class="del-btn" data-id="${doc.id}">İptal Et</button></div>`;
       card.querySelector('.del-btn').addEventListener('click', async () => {
         if (confirm('Bu toplantı iptal edilsin mi?')) { await db.collection('meetings').doc(doc.id).delete(); loadMeetings(); }
