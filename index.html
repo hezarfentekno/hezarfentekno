@@ -207,14 +207,15 @@
   .wing-svg path.draw{
     stroke-dasharray:1400;
     stroke-dashoffset:1400;
-    animation:draw 2.6s ease forwards .3s;
+    transition:stroke-dashoffset 2.2s ease;
   }
   .wing-svg .dim-line{
     stroke-dasharray:1000;
     stroke-dashoffset:1000;
-    animation:draw 1.8s ease forwards 1.6s;
+    transition:stroke-dashoffset 1.4s ease;
   }
-  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .wing-svg.draw-active path.draw{ stroke-dashoffset:0; transition-delay:.2s; }
+  .wing-svg.draw-active .dim-line{ stroke-dashoffset:0; transition-delay:1.1s; }
   .callout{
     position:absolute;
     font-family:var(--mono);
@@ -222,9 +223,10 @@
     color:var(--cyan);
     letter-spacing:0.05em;
     opacity:0;
-    animation:fadein .6s ease forwards 2.1s;
+    transition:opacity .6s ease;
+    transition-delay:1.6s;
   }
-  @keyframes fadein{ to{opacity:1;} }
+  .hero-figure.draw-active .callout{ opacity:1; }
   .callout-1{ top:6%; right:2%; text-align:right;}
   .callout-2{ bottom:10%; left:0%; }
 
@@ -397,7 +399,11 @@
     background:var(--paper);
     display:flex;
     flex-direction:column;
+    text-decoration:none;
+    color:inherit;
+    transition:background .2s ease, transform .3s ease;
   }
+  .news-card:hover{ background:#e4ddcd; transform:translateY(-3px); }
   .news-card .news-img{
     width:100%; height:170px; object-fit:cover;
     border-bottom:1px solid rgba(10,25,41,0.14);
@@ -413,6 +419,10 @@
     margin:8px 0 10px;
   }
   .news-card p{ font-size:14px; color:var(--navy-mid); opacity:0.85; }
+  .news-readmore{
+    display:block; margin-top:14px; font-family:var(--mono); font-size:11.5px;
+    letter-spacing:0.06em; text-transform:uppercase; color:var(--red);
+  }
 
   /* ---------- Roadmap ---------- */
   .roadmap{ background:var(--paper); }
@@ -833,6 +843,16 @@
 </footer>
 
 <script>
+  // Hero crescent/star draw-in (JS-triggered for reliable mobile playback)
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const svg = document.querySelector('.wing-svg');
+      const figure = document.querySelector('.hero-figure');
+      if (svg) svg.classList.add('draw-active');
+      if (figure) figure.classList.add('draw-active');
+    }));
+  });
+
   // Mobile nav toggle
   const toggle = document.getElementById('navToggle');
   const navList = document.getElementById('navList');
@@ -888,6 +908,9 @@
 
   // Public news feed (read-only, powered by Firestore)
   (function loadNews() {
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
     const firebaseConfig = {
       apiKey: "AIzaSyCefL0FpIDpKPh4RZfqbuGfGlecEafjFMI",
       authDomain: "hezarfen-kariyer.firebaseapp.com",
@@ -915,14 +938,18 @@
           snap.forEach(doc => {
             const n = doc.data();
             const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('tr-TR') : '';
-            const card = document.createElement('div');
+            const bodyText = n.body || '';
+            const excerpt = bodyText.length > 130 ? bodyText.slice(0, 130).trim() + '…' : bodyText;
+            const card = document.createElement('a');
             card.className = 'news-card';
+            card.href = `haber.html?id=${doc.id}`;
             card.innerHTML = `
-              ${n.imageUrl ? `<img class="news-img" src="${n.imageUrl}" alt="${n.title || ''}">` : ''}
+              ${n.imageUrl ? `<img class="news-img" src="${escapeHtml(n.imageUrl)}" alt="${escapeHtml(n.title || '')}">` : ''}
               <div class="news-body">
                 <div class="news-date">${date}</div>
-                <h4>${n.title || ''}</h4>
-                <p>${n.body || ''}</p>
+                <h4>${escapeHtml(n.title || '')}</h4>
+                <p>${escapeHtml(excerpt)}</p>
+                <span class="news-readmore">Devamını Oku →</span>
               </div>`;
             list.appendChild(card);
           });
