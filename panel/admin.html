@@ -298,7 +298,7 @@
         <div class="meta">${escapeHtml(m.email)} · ${escapeHtml(PROJECT_LABELS[m.projectId] || m.projectId)}${m.unit ? ' · ' + escapeHtml(m.unit) : ''}</div>
         <div class="row-actions"><button class="del-btn" data-id="${doc.id}">Üyeyi Sil</button></div>`;
       card.querySelector('.del-btn').addEventListener('click', async () => {
-        if (confirm('Bu üyeyi sistemden kaldırmak istediğinize emin misiniz? (Not: giriş hesabı ayrıca Firebase Console\\'dan silinmelidir)')) {
+        if (confirm('Bu üyeyi sistemden kaldırmak istediğinize emin misiniz? (Not: giriş hesabı ayrıca Firebase Console\'dan silinmelidir)')) {
           await db.collection('teamMembers').doc(doc.id).delete();
           loadMembers();
         }
